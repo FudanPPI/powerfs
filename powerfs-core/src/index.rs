@@ -66,7 +66,7 @@ pub struct PersistentIndex {
 
 impl PersistentIndex {
     pub fn new(path: &str) -> Result<Self> {
-        let db = sled::open(path)?;
+        let db = sled::open(path).map_err(|e| PowerFsError::Internal(format!("sled error: {}", e)))?;
         Ok(PersistentIndex {
             db,
             lru: RwLock::new(LruCache::new(std::num::NonZeroUsize::new(10000).unwrap())),
@@ -87,8 +87,8 @@ impl NeedleIndex for PersistentIndex {
         }
         
         let key = Self::key_from_id(needle_id);
-        if let Some(data) = self.db.get(&key).ok()?.flatten() {
-            match serde_json::from_slice(&data) {
+        if let Ok(Some(data)) = self.db.get(&key) {
+            match serde_json::from_slice::<NeedleInfo>(&data) {
                 Ok(info) => {
                     lru.put(needle_id.clone(), info.clone());
                     Some(info)
@@ -109,8 +109,8 @@ impl NeedleIndex for PersistentIndex {
 
     fn remove(&self, needle_id: &NeedleId) -> Option<NeedleInfo> {
         let key = Self::key_from_id(needle_id);
-        if let Some(data) = self.db.remove(&key).ok()?.flatten() {
-            match serde_json::from_slice(&data) {
+        if let Ok(Some(data)) = self.db.remove(&key) {
+            match serde_json::from_slice::<NeedleInfo>(&data) {
                 Ok(info) => {
                     self.lru.write().unwrap().pop(needle_id);
                     Some(info)
@@ -128,6 +128,6 @@ impl NeedleIndex for PersistentIndex {
     }
 
     fn len(&self) -> usize {
-        self.db.len().unwrap_or(0)
+        self.db.len()
     }
 }

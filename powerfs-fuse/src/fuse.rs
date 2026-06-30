@@ -152,7 +152,7 @@ impl Vfs for PowerFsVfs {
         if let Some(meta) = self.inode_to_metadata(inode) {
             if !meta.needle_ids.is_empty() {
                 if let Some(volume_id) = meta.volume_ids.first() {
-                    if let Some(volume) = self.storage_manager.get_volume_ref(volume_id) {
+                    if let Some(volume) = self.storage_manager.get_volume(volume_id) {
                         if let Some(needle_id) = meta.needle_ids.first() {
                             if let Ok(data) = volume.read_needle(needle_id) {
                                 let start = std::cmp::min(offset as usize, data.len());
@@ -177,7 +177,7 @@ impl Vfs for PowerFsVfs {
             
             if meta.needle_ids.is_empty() {
                 if let Some(volume_id) = self.storage_manager.find_available_volume() {
-                    if let Some(volume) = self.storage_manager.get_volume_ref(&volume_id) {
+                    if let Some(volume) = self.storage_manager.get_volume(&volume_id) {
                         if let Ok(needle_info) = volume.write_needle(bytes::Bytes::from(data.to_vec())) {
                             meta.volume_ids.push(volume_id);
                             meta.needle_ids.push(needle_info.id);

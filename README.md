@@ -1,6 +1,7 @@
 # README\.md
 
-PowerFS**Zero\-jitter unified parallel file system for HPC simulation and LLM KV cache**
+PowerFS
+**Zero\-jitter unified parallel file system for HPC simulation and LLM KV cache**
 
 *Next\-generation high\-performance unified storage for HPC \& AI super clusters*
 
@@ -164,5 +165,3 @@ Open Source License To Be Determined \(Planned: Apache 2\.0 / MIT\)
 ---
 
 **PowerFS — Build the next\-generation unified storage for HPC \& AI super cluster\.**
-
-> （注：部分内容可能由 AI 生成）

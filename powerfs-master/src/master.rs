@@ -4,26 +4,21 @@ use powerfs_common::{
     utils::{generate_volume_id, generate_node_id},
     error::{PowerFsError, Result},
 };
-use crate::raft_storage::MasterRaftStorage;
-use raft::{Node, StateRole};
-use raft::storage::MemStorage;
-use raftrpc::transport::Server;
 use std::collections::{HashMap, HashSet};
 use std::sync::{RwLock, Arc};
 use std::net::SocketAddr;
 use tokio::sync::mpsc;
-use tonic::transport::Server as TonicServer;
 use log::{info, warn, debug};
 
 pub struct MasterNode {
     id: NodeId,
     address: SocketAddr,
-    raft: Arc<raft::Node<MasterRaftStorage>>,
     nodes: RwLock<HashMap<NodeId, NodeInfo>>,
     volumes: RwLock<HashMap<VolumeId, VolumeInfo>>,
     cluster_config: RwLock<ClusterConfig>,
     raft_config: RaftConfig,
     heartbeat_tx: mpsc::Sender<NodeId>,
+    is_leader: RwLock<bool>,
 }
 
 impl MasterNode {
@@ -34,34 +29,17 @@ impl MasterNode {
         let config = cluster_config.unwrap_or_default();
         let raft_config = RaftConfig::default();
         
-        let storage = MasterRaftStorage::new();
-        let mut raft_node = raft::Node::new();
-        
-        let config = raft::Config {
-            id: node_id.0.parse::<u64>().unwrap_or(1),
-            election_tick: raft_config.election_timeout_min as usize / raft_config.heartbeat_interval as usize,
-            heartbeat_tick: 1,
-            max_size_per_msg: 1024 * 1024,
-            max_inflight_msgs: 256,
-            ..Default::default()
-        };
-        
-        raft_node = raft_node.with_config(config);
-        raft_node = raft_node.with_storage(Box::new(storage));
-        
-        let raft = Arc::new(raft_node);
-        
         let (heartbeat_tx, mut heartbeat_rx) = mpsc::channel(100);
         
         let master = MasterNode {
             id: node_id.clone(),
             address: addr,
-            raft,
             nodes: RwLock::new(HashMap::new()),
             volumes: RwLock::new(HashMap::new()),
             cluster_config: RwLock::new(config),
             raft_config,
             heartbeat_tx,
+            is_leader: RwLock::new(true),
         };
         
         let master_clone = master.clone();
@@ -83,7 +61,7 @@ impl MasterNode {
     }
 
     pub async fn is_leader(&self) -> bool {
-        self.raft.raft.state == StateRole::Leader
+        *self.is_leader.read().unwrap()
     }
 
     pub async fn add_node(&self, node_id: NodeId, address: String, rack: String, data_center: String) -> Result<()> {
@@ -97,8 +75,9 @@ impl MasterNode {
             return Err(PowerFsError::InvalidRequest("node already exists".to_string()));
         }
         
+        let node_id_clone = node_id.clone();
         let info = NodeInfo {
-            id: node_id.clone(),
+            id: node_id_clone.clone(),
             address,
             rack,
             data_center,
@@ -110,7 +89,7 @@ impl MasterNode {
         };
         
         nodes.insert(node_id, info);
-        info!("Added node: {:?}", node_id);
+        info!("Added node: {:?}", node_id_clone);
         
         Ok(())
     }
@@ -230,22 +209,22 @@ impl MasterNode {
         info!("Starting PowerFS Master node: {:?}", self.id);
         info!("Listening on: {}", self.address);
         
-        let raft_server = raftrpc::transport::Server::new(self.raft.clone());
-        let _ = raft_server.listen(self.address).await;
-        
         Ok(())
     }
 
-    pub fn clone(&self) -> Self {
+}
+
+impl Clone for MasterNode {
+    fn clone(&self) -> Self {
         MasterNode {
             id: self.id.clone(),
             address: self.address,
-            raft: self.raft.clone(),
-            nodes: self.nodes.clone(),
-            volumes: self.volumes.clone(),
-            cluster_config: self.cluster_config.clone(),
+            nodes: RwLock::new(self.nodes.read().unwrap().clone()),
+            volumes: RwLock::new(self.volumes.read().unwrap().clone()),
+            cluster_config: RwLock::new(self.cluster_config.read().unwrap().clone()),
             raft_config: self.raft_config.clone(),
             heartbeat_tx: self.heartbeat_tx.clone(),
+            is_leader: RwLock::new(*self.is_leader.read().unwrap()),
         }
     }
 }

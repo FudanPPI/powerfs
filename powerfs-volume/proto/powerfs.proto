@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package powerfs;
+
+service VolumeService {
+    rpc CreateVolume(CreateVolumeRequest) returns (CreateVolumeResponse);
+    rpc DeleteVolume(DeleteVolumeRequest) returns (DeleteVolumeResponse);
+    rpc WriteNeedle(WriteNeedleRequest) returns (WriteNeedleResponse);
+    rpc ReadNeedle(ReadNeedleRequest) returns (ReadNeedleResponse);
+    rpc DeleteNeedle(DeleteNeedleRequest) returns (DeleteNeedleResponse);
+    rpc ListVolumes(ListVolumesRequest) returns (ListVolumesResponse);
+    rpc GetNodeInfo(GetNodeInfoRequest) returns (GetNodeInfoResponse);
+}
+
+message CreateVolumeRequest {
+    string volume_id = 1;
+    uint64 size = 2;
+}
+
+message CreateVolumeResponse {
+    bool success = 1;
+    string volume_id = 2;
+}
+
+message DeleteVolumeRequest {
+    string volume_id = 1;
+}
+
+message DeleteVolumeResponse {
+    bool success = 1;
+}
+
+message WriteNeedleRequest {
+    string volume_id = 1;
+    bytes data = 2;
+}
+
+message WriteNeedleResponse {
+    bool success = 1;
+    string needle_id = 2;
+    uint64 offset = 3;
+}
+
+message ReadNeedleRequest {
+    string volume_id = 1;
+    string needle_id = 2;
+}
+
+message ReadNeedleResponse {
+    bool success = 1;
+    bytes data = 2;
+}
+
+message DeleteNeedleRequest {
+    string volume_id = 1;
+    string needle_id = 2;
+}
+
+message DeleteNeedleResponse {
+    bool success = 1;
+}
+
+message ListVolumesRequest {}
+
+message ListVolumesResponse {
+    repeated VolumeInfo volumes = 1;
+}
+
+message VolumeInfo {
+    string volume_id = 1;
+    string node_id = 2;
+    uint64 size = 3;
+    uint64 used = 4;
+    uint32 replica_count = 5;
+    int32 state = 6;
+}
+
+message GetNodeInfoRequest {}
+
+message GetNodeInfoResponse {
+    string node_id = 1;
+    uint64 total_space = 2;
+    uint64 used_space = 3;
+    uint32 volume_count = 4;
+}

@@ -4,10 +4,10 @@ use powerfs_common::{
 };
 use crate::volume::Volume;
 use std::collections::HashMap;
-use std::sync::RwLock;
+use std::sync::{RwLock, Arc};
 
 pub struct StorageManager {
-    volumes: RwLock<HashMap<VolumeId, Volume>>,
+    volumes: RwLock<HashMap<VolumeId, Arc<Volume>>>,
     node_id: NodeId,
     data_path: String,
 }
@@ -32,12 +32,12 @@ impl StorageManager {
             return Err(PowerFsError::VolumeExists(volume_id));
         }
         
-        let volume = Volume::new(
+        let volume = Arc::new(Volume::new(
             volume_id.clone(),
             &self.node_id.0,
             &self.data_path,
             size,
-        )?;
+        )?);
         
         let info = volume.info();
         volumes.insert(volume_id, volume);
@@ -45,18 +45,14 @@ impl StorageManager {
         Ok(info)
     }
 
-    pub fn get_volume(&self, volume_id: &VolumeId) -> Option<Volume> {
+    pub fn get_volume(&self, volume_id: &VolumeId) -> Option<Arc<Volume>> {
         self.volumes.read().unwrap().get(volume_id).cloned()
-    }
-
-    pub fn get_volume_ref(&self, volume_id: &VolumeId) -> Option<&Volume> {
-        self.volumes.read().unwrap().get(volume_id)
     }
 
     pub fn delete_volume(&self, volume_id: &VolumeId) -> Result<()> {
         let mut volumes = self.volumes.write().unwrap();
         
-        if let Some(mut volume) = volumes.remove(volume_id) {
+        if let Some(volume) = volumes.remove(volume_id) {
             volume.set_deleting();
             
             let volume_path = std::path::Path::new(&self.data_path)
@@ -131,12 +127,12 @@ impl StorageManager {
                         if let Ok(uuid) = uuid::Uuid::parse_str(&dir_name[7..]) {
                             let volume_id = VolumeId(uuid);
                             if !volumes.contains_key(&volume_id) {
-                                let volume = Volume::new(
+                                let volume = Arc::new(Volume::new(
                                     volume_id.clone(),
                                     &self.node_id.0,
                                     &self.data_path,
                                     powerfs_common::constants::DEFAULT_VOLUME_SIZE,
-                                )?;
+                                )?);
                                 volumes.insert(volume_id, volume);
                             }
                         }

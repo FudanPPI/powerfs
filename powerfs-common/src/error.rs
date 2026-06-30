@@ -1,4 +1,5 @@
 use thiserror::Error;
+use crate::types::{VolumeId, NeedleId};
 
 #[derive(Error, Debug)]
 pub enum PowerFsError {
@@ -23,17 +24,20 @@ pub enum PowerFsError {
     #[error("uuid parse error: {0}")]
     UuidParse(#[from] uuid::Error),
 
+    #[error("address parse error: {0}")]
+    AddrParse(#[from] std::net::AddrParseError),
+
     #[error("raft error: {0}")]
     Raft(#[from] raft::Error),
 
     #[error("volume not found: {0}")]
-    VolumeNotFound(uuid::Uuid),
+    VolumeNotFound(VolumeId),
 
     #[error("needle not found: {0}")]
-    NeedleNotFound(uuid::Uuid),
+    NeedleNotFound(NeedleId),
 
     #[error("volume already exists: {0}")]
-    VolumeExists(uuid::Uuid),
+    VolumeExists(VolumeId),
 
     #[error("invalid volume state: {0}")]
     InvalidVolumeState(String),

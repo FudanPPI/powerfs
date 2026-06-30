@@ -1,7 +1,7 @@
 use powerfs_common::{
     types::{VolumeId, VolumeInfo, VolumeState, NeedleId, NeedleInfo},
-    constants::{VOLUME_DATA_OFFSET, DEFAULT_VOLUME_SIZE},
-    utils::{generate_needle_id, calculate_checksum},
+    constants::{VOLUME_DATA_OFFSET},
+    utils::{generate_needle_id},
     error::{PowerFsError, Result},
 };
 use crate::needle::Needle;
@@ -11,7 +11,6 @@ use chrono::Utc;
 use std::fs::{File, OpenOptions};
 use std::path::Path;
 use std::sync::RwLock;
-use std::collections::HashMap;
 
 pub struct Volume {
     info: RwLock<VolumeInfo>,
@@ -32,13 +31,14 @@ impl Volume {
         let data_file_path = volume_path.join("data");
         let index_path = volume_path.join("index");
         
-        let mut file = OpenOptions::new()
+        let file = OpenOptions::new()
             .create(true)
             .read(true)
             .write(true)
             .open(&data_file_path)?;
         
         let file_size = file.metadata()?.len();
+        let mut file = file;
         if file_size < size {
             file.set_len(size)?;
         }
@@ -128,7 +128,7 @@ impl Volume {
 
     pub fn read_needle(&self, needle_id: &NeedleId) -> Result<Bytes> {
         if let Some(info) = self.index.get(needle_id) {
-            let mut file_guard = self.file.read().unwrap();
+            let mut file_guard = self.file.write().unwrap();
             let needle = Needle::read_from(&mut *file_guard, info.offset, self.id())?;
             Ok(needle.data)
         } else {
