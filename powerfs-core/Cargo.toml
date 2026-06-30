@@ -1,0 +1,17 @@
+[package]
+name = "powerfs-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+powerfs-common = { path = "../powerfs-common" }
+bytes = { workspace = true }
+tokio = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+serde = { workspace = true }
+sled = { workspace = true }
+blake3 = { workspace = true }
+crossbeam = { workspace = true }
+lru = { workspace = true }
+rand = { workspace = true }

@@ -1,0 +1,47 @@
+[workspace]
+members = [
+    "powerfs-core",
+    "powerfs-master",
+    "powerfs-volume",
+    "powerfs-fuse",
+    "powerfs-common",
+    "powerfs-server",
+]
+
+[workspace.package]
+name = "powerfs"
+version = "0.1.0"
+edition = "2026"
+authors = ["PowerFS Team <jiangjinhu@fudan.edu.cn>"]
+description = "Zero-jitter unified parallel file system for HPC simulation and LLM KV cache"
+license = "Apache-2.0"
+homepage = "https://github.com/powerfs/powerfs"
+repository = "https://github.com/powerfs/powerfs"
+readme = "README.md"
+keywords = ["storage", "hpc", "filesystem", "distributed", "kv-cache"]
+categories = ["filesystem", "concurrency", "network-programming", "database"]
+
+[workspace.dependencies]
+tokio = { version = "1.35", features = ["full"] }
+bytes = { version = "1.5" }
+thiserror = { version = "1.0" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+log = { version = "0.4" }
+env_logger = { version = "0.10" }
+uuid = { version = "1.7", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+async-trait = { version = "0.1" }
+futures = { version = "0.3" }
+tonic = { version = "0.11" }
+prost = { version = "0.12" }
+raft = { version = "0.19", features = ["default", "protobuf"] }
+raftrpc = { version = "0.19" }
+fuse-backend-rs = { version = "0.15" }
+libc = { version = "0.2" }
+nix = { version = "0.28" }
+rand = { version = "0.8" }
+blake3 = { version = "1.5" }
+crossbeam = { version = "0.8" }
+lru = { version = "0.12" }
+sled = { version = "0.34" }

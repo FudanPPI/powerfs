@@ -1,0 +1,21 @@
+[package]
+name = "powerfs-server"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "powerfs"
+path = "src/main.rs"
+
+[dependencies]
+powerfs-common = { path = "../powerfs-common" }
+powerfs-core = { path = "../powerfs-core" }
+powerfs-master = { path = "../powerfs-master" }
+powerfs-fuse = { path = "../powerfs-fuse" }
+tokio = { workspace = true }
+tonic = { workspace = true }
+prost = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+clap = { version = "4.4", features = ["derive"] }
+bytes = { workspace = true }

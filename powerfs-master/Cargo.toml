@@ -1,0 +1,19 @@
+[package]
+name = "powerfs-master"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+powerfs-common = { path = "../powerfs-common" }
+powerfs-core = { path = "../powerfs-core" }
+tokio = { workspace = true }
+raft = { workspace = true }
+raftrpc = { workspace = true }
+tonic = { workspace = true }
+prost = { workspace = true }
+bytes = { workspace = true }
+serde = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+async-trait = { workspace = true }

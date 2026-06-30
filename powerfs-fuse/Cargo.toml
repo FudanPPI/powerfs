@@ -1,0 +1,17 @@
+[package]
+name = "powerfs-fuse"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+powerfs-common = { path = "../powerfs-common" }
+powerfs-core = { path = "../powerfs-core" }
+powerfs-master = { path = "../powerfs-master" }
+fuse-backend-rs = { workspace = true }
+libc = { workspace = true }
+nix = { workspace = true }
+tokio = { workspace = true }
+log = { workspace = true }
+thiserror = { workspace = true }
+bytes = { workspace = true }
+chrono = { workspace = true }
