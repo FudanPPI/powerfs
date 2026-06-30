@@ -120,7 +120,7 @@ async fn run_volume(address: &str, master_address: &str, data_path: Option<Strin
     
     let storage_manager = Arc::new(StorageManager::new(node_id.clone(), data_dir));
     
-    storage_manager.load_volumes().await?;
+    storage_manager.load_volumes()?;
     
     info!("Volume node initialized: {:?}", node_id);
     info!("Connected to master: {}", master_address);
@@ -136,7 +136,7 @@ async fn run_fuse(mount_point: &str, master_address: Option<String>) -> Result<(
     let node_id = generate_node_id();
     let storage_manager = Arc::new(StorageManager::new(node_id, "./data/fuse".to_string()));
     
-    storage_manager.load_volumes().await?;
+    storage_manager.load_volumes()?;
     
     let fuse_client = FuseClient::new(storage_manager, mount_point);
     
