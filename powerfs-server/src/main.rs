@@ -52,11 +52,11 @@ enum Commands {
         dir: String,
 
         /// Meta storage directory (default: <dir>/meta)
-        #[arg(long, short = 'm')]
+        #[arg(long = "meta-dir")]
         meta_dir: Option<String>,
 
         /// Data storage directory (default: <dir>/data)
-        #[arg(long, short = 'd')]
+        #[arg(long = "data-dir")]
         data_dir: Option<String>,
 
         /// Master address
@@ -68,7 +68,7 @@ enum Commands {
         ip: Option<String>,
 
         /// Max volume size in bytes
-        #[arg(long, short, default_value = "1073741824")]
+        #[arg(long = "max-volume-size", default_value = "1073741824")]
         max_volume_size: u64,
     },
 
