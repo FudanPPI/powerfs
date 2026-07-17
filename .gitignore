@@ -38,3 +38,11 @@ kernel/**/Module.symvers
 kernel/**/modules.order
 kernel/**/.*.cmd
 kernel/**/.*.o
+
+# python
+__pycache__
+build
+*.egg-info
+
+# node.js
+node_modules
