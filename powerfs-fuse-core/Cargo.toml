@@ -1,24 +1,9 @@
 [package]
-name = "powerfs-fuse"
+name = "powerfs-fuse-core"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
-name = "powerfs-fuse"
-path = "src/main.rs"
-
-[[bench]]
-name = "fs_bench"
-path = "benches/fs_bench.rs"
-harness = false
-
-[features]
-default = ["community"]
-community = []
-enterprise = []
-
 [dependencies]
-powerfs-fuse-core = { path = "../powerfs-fuse-core" }
 powerfs-common = { path = "../powerfs-common" }
 powerfs-core = { path = "../powerfs-core" }
 powerfs-master = { path = "../powerfs-master" }
@@ -49,6 +34,3 @@ md5 = "0.7"
 hostname = "0.3"
 futures = { workspace = true }
 crossbeam = { workspace = true }
-
-[dev-dependencies]
-rfs_tester = { path = "../rfs_tester" }
